@@ -1,0 +1,10 @@
+streamlit
+pandas
+python-dotenv
+pinecone==7.0.0
+fastembed
+agno
+pyreadline3
+google-genai
+PyPDF2>=3.0.0
+torchvision

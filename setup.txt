@@ -1,0 +1,30 @@
+## Setup Instructions
+
+### 1. Create a Virtual Environment
+
+python3 -m venv venv
+
+### 2. Activate the Virtual Environment
+
+# On Linux/macOS:
+source venv/bin/activate
+
+# On Windows:
+venv\Scripts\activate
+
+### 3. Install Dependencies
+
+pip install -r requirements.txt
+
+### 4. Configure Environment Variables
+
+Copy or create a .env file in the project root and add the required API keys:
+
+GOOGLE_API_KEY=your_google_api_key
+PINECONE_API_KEY=your_pinecone_api_key
+
+### 5. Run the Application
+
+streamlit run app4.py
+
+The app will open in your browser at http://localhost:8501
