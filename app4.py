@@ -67,12 +67,26 @@ def search_similar(query: str) -> str:
     matches = [f"ID: {match['id']}, Score: {match['score']}" for match in results['matches']]
     return "\n".join(matches)
 
-# ---- 8. Create the Agent ----
-agent = Agent(
-    tools=[describe_data, embed_and_store, search_similar],
+# ---- 8. Create Agents ----
+describe_agent = Agent(
+    tools=[describe_data],
     model=model,
-    name="Data Analyst Agent",
-    description="Analyzes CSV, Excel, and PDF files, chunks and stores metadata, and retrieves similar datasets."
+    name="Describe Agent",
+    description="Reads a dataset file and returns a statistical summary."
+)
+
+store_agent = Agent(
+    tools=[embed_and_store],
+    model=model,
+    name="Store Agent",
+    description="Chunks, embeds, and stores dataset metadata in Pinecone."
+)
+
+search_agent = Agent(
+    tools=[search_similar],
+    model=model,
+    name="Search Agent",
+    description="Searches Pinecone for datasets similar to a given query."
 )
 
 
@@ -119,12 +133,12 @@ if uploaded_file is not None:
             with open(temp_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            response = agent.run(f"Describe the dataset in {temp_path}")
+            response = describe_agent.run(f"Describe the dataset in {temp_path}")
             st.subheader("Dataset Summary from Agent")
             st.markdown(response.content if hasattr(response, "content") else str(response))
 
             with st.spinner("Storing dataset in Pinecone for future comparison..."):
-                store_response = agent.run(f"Embed and store the dataset at {temp_path}")
+                store_response = store_agent.run(f"Embed and store the dataset at {temp_path}")
                 st.info(store_response.content if hasattr(store_response, "content") else str(store_response))
 
         elif file_type == "pdf":
@@ -157,7 +171,7 @@ search_query = st.text_input(
 if st.button("Search Similar Datasets") and search_query:
     with st.spinner("Searching Pinecone..."):
         try:
-            search_response = agent.run(f"Search for datasets similar to: {search_query}")
+            search_response = search_agent.run(f"Search for datasets similar to: {search_query}")
             result_text = search_response.content if hasattr(search_response, "content") else str(search_response)
             st.markdown(result_text)
         except Exception as e:
